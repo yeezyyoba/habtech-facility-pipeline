@@ -5,10 +5,7 @@ from superset.security import SupersetSecurityManager
 # ----------------------------------------------------
 # Superset Core Settings
 # ----------------------------------------------------
-SECRET_KEY = os.environ.get(
-    "SUPERSET_SECRET_KEY",
-    "a-long-random-secret-for-my-superset-installation-9f82k3x7"
-)
+SECRET_KEY = os.environ.get("SUPERSET_SECRET_KEY")
 
 AUTH_TYPE = AUTH_OAUTH
 AUTH_USER_REGISTRATION = True
@@ -46,7 +43,7 @@ OAUTH_PROVIDERS = [
         "token_key": "access_token",
         "remote_app": {
             "client_id": "superset",
-            "client_secret": "HYlRXGlgKzogiL50ZOHt2dzrK36xa90g",
+            "client_secret": os.environ.get("KEYCLOAK_CLIENT_SECRET"),
             "client_kwargs": {
                 "scope": "openid profile email",
             },
