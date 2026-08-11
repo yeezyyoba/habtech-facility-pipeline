@@ -1,0 +1,4 @@
+mfr_id,mfr_name,dhis2_uid,confidence,reason
+1070074,Gendawuha Health Center,IxJ7fZD36WR,high,"The facility name, zone, woreda, and facility type all match perfectly with the target facility."
+1070422,Wegedad Health Center,P02V9ZfTJK3,high,Wogedad Health Center correctly matches the target facility's location in West Gojjam Zone and Womberma (Wenberma) Woreda despite a slight spelling variation in the name.
+1070750,Tesfaye Drug store,,none,None of the candidate facilities are located in Dessie Town Administration or match the facility type of a drug store.

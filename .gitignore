@@ -1,0 +1,29 @@
+# environment
+venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+
+# large source data files (not meant for git)
+mfr_facilities_202607291153.csv
+dhis2_echis_mfr_facilities.xlsx
+dhis2_facilities.csv
+org_units_202607291153.csv
+output_2_fixed.csv
+
+# generated/derivative outputs and logs
+fact_facility_capacity_backup.csv
+dim_region_backup.csv
+dim_region_restore.csv
+dim_zone_woreda_backup.csv
+dim_ownership_type_backup.csv
+linking_run.log
+logs/
+
+# dbt build artifacts
+target/
+dbt_packages/
+
+# meltano internal state
+habtech-meltano/.meltano/

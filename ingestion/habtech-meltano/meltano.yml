@@ -1,0 +1,33 @@
+version: 1
+default_environment: dev
+project_id: habtech-meltano
+plugins:
+  extractors:
+    - name: tap-csv
+      variant: meltanolabs
+      pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+      config:
+        files:
+          - entity: mfr_facilities
+            path: "/Users/eyobnebyou/habtech data/mfr_facilities_202607291153.csv"
+            keys: [id]
+          - entity: dhis2_facilities
+            path: "/Users/eyobnebyou/habtech data/dhis2_facilities.csv"
+            keys: [uid]
+          - entity: facility_linkage
+            path: "/Users/eyobnebyou/habtech data/facility_linkage.csv"
+            keys: [mfr_id]
+  loaders:
+    - name: target-clickhouse
+      variant: shaped-ai
+      pip_url: git+https://github.com/shaped-ai/target-clickhouse.git
+      config:
+        host: 172.28.0.6
+        port: 8123
+        username: default
+        password: ""
+        database: default
+environments:
+  - name: dev
+  - name: staging
+  - name: prod

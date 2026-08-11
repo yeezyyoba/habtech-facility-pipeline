@@ -1,0 +1,21 @@
+select
+  id as mfr_id,
+  name as facility_name,
+  type as facility_type,
+  subtype,
+  ownership,
+  region,
+  zone,
+  woreda,
+  dhis2_id as existing_dhis2_id,
+  catchment_population,
+  number_of_inpatient_beds,
+  number_of_maternity_beds,
+  number_of_emergency_beds,
+  number_of_opd_rooms,
+  number_of_ipd_rooms,
+  number_of_laboratory_rooms,
+  number_of_imaging_rooms,
+  number_of_mch_rooms,
+  number_of_icu_rooms
+from {{ source('raw', 'mfr_facilities') }}
