@@ -1,0 +1,24 @@
+# Two-Stage Facility Linking Pipeline Requirements
+# Install with: pip install -r requirements_linker.txt
+
+# Core dependencies
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Record Linkage (Stage 1: Blocking)
+recordlinkage>=0.16.0
+jellyfish>=0.9.0  # For Soundex/Metaphone phonetic hashing
+
+# Semantic Matching (Stage 2: LinkTransformer)
+sentence-transformers>=2.2.0
+torch>=2.0.0  # or install pytorch from https://pytorch.org/
+
+# Validation & Evaluation
+scikit-learn>=1.3.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Optional but recommended
+tqdm>=4.65.0  # Progress bars
+sqlalchemy>=2.0.0  # For database integration
+python-dotenv>=1.0.0  # For environment variables

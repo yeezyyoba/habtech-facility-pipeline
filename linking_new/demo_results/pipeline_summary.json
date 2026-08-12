@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-08-12T08:58:36.087577",
+  "mfr_count": 500,
+  "dhis2_count": 500,
+  "candidate_pairs_count": 2451,
+  "scored_pairs_count": 2451,
+  "linktransformer_score_stats": {
+    "mean": 0.709401607978519,
+    "median": 0.6902051568031311,
+    "min": 0.0,
+    "max": 1.0,
+    "std": 0.14847115569422406
+  },
+  "calibration": {
+    "threshold": 0.7400000000000002,
+    "precision": 0.999999999975,
+    "recall": 0.999999999975,
+    "f1": 0.999999999925,
+    "tp": 4.0,
+    "fp": 0.0,
+    "fn": 0.0,
+    "tn": 2.0
+  },
+  "match_threshold": 0.7400000000000002,
+  "final_matches": {
+    "total": 920,
+    "mfr_matched": 451,
+    "dhis2_matched": 373,
+    "mfr_coverage": "90.2%",
+    "dhis2_coverage": "74.6%"
+  }
+}

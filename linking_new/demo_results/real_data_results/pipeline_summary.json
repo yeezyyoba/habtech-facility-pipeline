@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-08-12T09:22:31.998936",
+  "mfr_count": 31534,
+  "dhis2_count": 8796,
+  "candidate_pairs_count": 39086,
+  "scored_pairs_count": 39086,
+  "linktransformer_score_stats": {
+    "mean": 0.5262157872537352,
+    "median": 0.5653052926063538,
+    "min": 0.0,
+    "max": 1.0,
+    "std": 0.21900426507097825
+  },
+  "match_threshold": 0.8,
+  "final_matches": {
+    "total": 3114,
+    "mfr_matched": 2001,
+    "dhis2_matched": 1595,
+    "mfr_coverage": "6.3%",
+    "dhis2_coverage": "18.1%"
+  }
+}
