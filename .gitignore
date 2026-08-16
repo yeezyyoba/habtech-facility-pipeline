@@ -27,3 +27,4 @@ dbt_packages/
 
 # meltano internal state
 habtech-meltano/.meltano/
+linker_env/
