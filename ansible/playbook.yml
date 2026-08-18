@@ -1,0 +1,35 @@
+---
+- name: Bare-metal setup for habtech services
+  hosts: local
+  become: false
+
+  tasks:
+    - name: Install PostgreSQL via Homebrew
+      homebrew:
+        name: postgresql@15
+        state: present
+
+    - name: Install Nginx via Homebrew
+      homebrew:
+        name: nginx
+        state: present
+
+    - name: Set Nginx to listen on port 8090 instead of 8080
+      replace:
+        path: /opt/homebrew/etc/nginx/nginx.conf
+        regexp: 'listen\s+8080;'
+        replace: 'listen       8090;'
+
+    - name: Set PostgreSQL to listen on port 5433 instead of 5432
+      lineinfile:
+        path: /opt/homebrew/var/postgresql@15/postgresql.conf
+        regexp: '^#?port\s*='
+        line: 'port = 5433'
+
+    - name: Start PostgreSQL service
+      command: brew services restart postgresql@15
+      changed_when: true
+
+    - name: Restart Nginx service
+      command: brew services restart nginx
+      changed_when: true
