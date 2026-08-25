@@ -1,7 +1,7 @@
 version: 2
 sources:
   - name: raw
-    schema: default
+    schema: staging
     tables:
       - name: mfr_facilities
       - name: dhis2_facilities

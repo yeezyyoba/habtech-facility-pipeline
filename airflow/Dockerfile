@@ -1,2 +1,2 @@
 FROM apache/airflow:2.10.2
-RUN pip install --no-cache-dir clickhouse-connect apache-airflow-providers-common-sql
+RUN pip install --no-cache-dir clickhouse-connect apache-airflow-providers-common-sql apache-airflow-providers-cncf-kubernetes
