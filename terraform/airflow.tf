@@ -58,7 +58,8 @@ resource "docker_container" "airflow_webserver" {
     "AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true",
     "AIRFLOW__CORE__LOAD_EXAMPLES=false",
     "AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session",
-    "AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK=true"
+    "AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK=true",
+    "AIRFLOW__CORE__DAGBAG_IMPORT_TIMEOUT=120"
   ]
 
   volumes {
@@ -76,6 +77,11 @@ resource "docker_container" "airflow_webserver" {
   volumes {
     host_path      = "${var.airflow_proj_dir}/plugins"
     container_path = "/opt/airflow/plugins"
+  }
+  volumes {
+    host_path      = "/Users/eyobnebyou/habtech data/terraform/kube"
+    container_path = "/opt/airflow/.kube"
+    read_only      = true
   }
 
   networks_advanced {
@@ -106,7 +112,8 @@ resource "docker_container" "airflow_scheduler" {
     "AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true",
     "AIRFLOW__CORE__LOAD_EXAMPLES=false",
     "AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session",
-    "AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK=true"
+    "AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK=true",
+    "AIRFLOW__CORE__DAGBAG_IMPORT_TIMEOUT=120"
   ]
 
   volumes {
@@ -125,12 +132,17 @@ resource "docker_container" "airflow_scheduler" {
     host_path      = "${var.airflow_proj_dir}/plugins"
     container_path = "/opt/airflow/plugins"
   }
+  volumes {
+    host_path      = "/Users/eyobnebyou/habtech data/terraform/kube"
+    container_path = "/opt/airflow/.kube"
+    read_only      = true
+  }
 
   networks_advanced {
     name         = docker_network.habtech_net.name
     ipv4_address = "172.28.10.4"
   }
 
-  memory     = 512
+  memory     = 1024
   depends_on = [docker_container.airflow_metadb]
 }

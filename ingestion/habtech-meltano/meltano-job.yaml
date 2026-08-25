@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: meltano-ingest
+spec:
+  template:
+    spec:
+      containers:
+        - name: meltano-ingest
+          image: habtech-meltano:latest
+          imagePullPolicy: Never
+          volumeMounts:
+            - name: csv-data
+              mountPath: /data
+      volumes:
+        - name: csv-data
+          hostPath:
+            path: /mnt/csvdata
+      restartPolicy: Never
+  backoffLimit: 1

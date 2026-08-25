@@ -9,24 +9,24 @@ plugins:
       config:
         files:
           - entity: mfr_facilities
-            path: "/Users/eyobnebyou/habtech data/mfr_facilities_202607291153.csv"
+            path: "/data/mfr_facilities_202607291153.csv"
             keys: [id]
           - entity: dhis2_facilities
-            path: "/Users/eyobnebyou/habtech data/dhis2_facilities.csv"
+            path: "/data/dhis2_facilities.csv"
             keys: [uid]
-          - entity: facility_linkage
-            path: "/Users/eyobnebyou/habtech data/facility_linkage.csv"
-            keys: [mfr_id]
+          - entity: org_units
+            path: "/data/org_units_202608201004 (1).csv"
+            keys: [id]
   loaders:
     - name: target-clickhouse
       variant: shaped-ai
       pip_url: git+https://github.com/shaped-ai/target-clickhouse.git
       config:
-        host: 172.28.0.6
+        host: host.docker.internal
         port: 8123
-        username: default
-        password: ""
-        database: default
+        username: habtech_airflow
+        password: habtechpass123
+        database: staging
 environments:
   - name: dev
   - name: staging
