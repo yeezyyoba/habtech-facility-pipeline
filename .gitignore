@@ -45,3 +45,5 @@ airflow/kube/
 terraform/kube/
 data/
 data/
+visualization/superset_home/
+*.bak

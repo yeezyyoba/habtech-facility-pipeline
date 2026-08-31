@@ -2,36 +2,24 @@ from datetime import datetime, timedelta
 import time
 
 import clickhouse_connect
-import requests
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
 from kubernetes.client import models as k8s
 
-SUPERSET_URL = 'http://habtech-superset:8088'
-SUPERSET_USER = 'admin'
-SUPERSET_PASSWORD = 'admin'
-
-CH_HOST = 'habtech-clickhouse'
+CH_HOST = 'host.docker.internal'
 CH_PORT = 8123
 CH_USER = 'habtech_airflow'
 CH_PASSWORD = 'habtechpass123'
 
 EXPECTED_STAGING_TABLES = {'mfr_facilities', 'dhis2_facilities', 'org_units'}
 
-MONITORING_ENDPOINTS = {
-    'prometheus': 'http://habtech-prometheus:9090/-/healthy',
-    'grafana': 'http://habtech-grafana:3000/api/health',
-    'cadvisor': 'http://habtech-cadvisor:8080/healthz',
-    'keycloak': 'http://habtech-keycloak:8080/health/ready',
-}
-
 
 def wait_for_staging_tables():
     client = clickhouse_connect.get_client(
         host=CH_HOST, port=CH_PORT, username=CH_USER, password=CH_PASSWORD,
     )
-    deadline = time.time() + 60
+    deadline = time.time() + 300
     while time.time() < deadline:
         result = client.query("SHOW TABLES FROM staging")
         existing = {row[0] for row in result.result_rows}
@@ -42,65 +30,6 @@ def wait_for_staging_tables():
         print(f"Waiting on staging tables: {missing}")
         time.sleep(3)
     raise Exception(f"Timed out waiting for staging tables: {EXPECTED_STAGING_TABLES - existing}")
-
-
-def refresh_superset_datasets():
-    session = requests.Session()
-    try:
-        login_resp = session.post(
-            f"{SUPERSET_URL}/api/v1/security/login",
-            json={
-                "username": SUPERSET_USER,
-                "password": SUPERSET_PASSWORD,
-                "provider": "db",
-                "refresh": True,
-            },
-            timeout=10,
-        )
-        login_resp.raise_for_status()
-        access_token = login_resp.json().get("access_token")
-        headers = {"Authorization": f"Bearer {access_token}"}
-
-        datasets_resp = session.get(
-            f"{SUPERSET_URL}/api/v1/dataset/",
-            headers=headers,
-            params={"q": "(filters:!((col:table_name,opr:ct,value:'')))"},
-            timeout=10,
-        )
-        datasets_resp.raise_for_status()
-        datasets = datasets_resp.json().get("result", [])
-
-        target_tables = {"fact_facility_capacity", "dim_region"}
-        refreshed = []
-        for ds in datasets:
-            if ds.get("table_name") in target_tables:
-                ds_id = ds["id"]
-                refresh_resp = session.put(
-                    f"{SUPERSET_URL}/api/v1/dataset/{ds_id}/refresh",
-                    headers=headers,
-                    timeout=10,
-                )
-                if refresh_resp.status_code in (200, 201):
-                    refreshed.append(ds["table_name"])
-
-        print(f"Refreshed Superset datasets: {refreshed}")
-
-    except Exception as e:
-        print(f"Superset refresh skipped/failed (non-blocking): {e}")
-
-
-def check_monitoring_stack_health():
-    results = {}
-    for name, url in MONITORING_ENDPOINTS.items():
-        try:
-            resp = requests.get(url, timeout=5)
-            results[name] = f"UP ({resp.status_code})" if resp.status_code < 400 else f"DEGRADED ({resp.status_code})"
-        except Exception as e:
-            results[name] = f"DOWN ({e})"
-
-    print("Monitoring/security stack health check:")
-    for name, status in results.items():
-        print(f"  {name}: {status}")
 
 
 default_args = {
@@ -122,10 +51,10 @@ csv_volume_mount = k8s.V1VolumeMount(name='csv-data', mount_path='/data')
 with DAG(
     dag_id='habtech_k8s_ingestion_transformation',
     default_args=default_args,
-    description='Airflow-triggered Meltano ingestion + dbt transformation as Kubernetes pods',
+    description='Airflow-triggered Meltano ingestion + dbt transformation + Superset refresh + monitoring check, all as Kubernetes pods',
     schedule_interval='@daily',
     catchup=False,
-    tags=['meltano', 'dbt', 'kubernetes', 'habtech'],
+    tags=['meltano', 'dbt', 'superset', 'monitoring', 'kubernetes', 'habtech'],
 ) as dag:
 
     task_meltano_ingest = KubernetesPodOperator(
@@ -163,15 +92,42 @@ with DAG(
         startup_timeout_seconds=300,
     )
 
-    task_refresh_superset = PythonOperator(
+    task_refresh_superset = KubernetesPodOperator(
         task_id='refresh_superset_datasets',
-        python_callable=refresh_superset_datasets,
+        name='superset-refresh-af',
+        namespace='default',
+        image='habtech-superset-refresh:latest',
+        image_pull_policy='Never',
+        env_vars={
+            'SUPERSET_URL': 'http://superset:8088',
+            'SUPERSET_USER': 'admin',
+            'SUPERSET_PASSWORD': 'admin',
+        },
+        config_file='/opt/airflow/.kube/config',
+        cluster_context='minikube',
+        is_delete_operator_pod=True,
+        get_logs=True,
+        startup_timeout_seconds=300,
         trigger_rule='all_done',
     )
 
-    task_check_monitoring = PythonOperator(
+    task_check_monitoring = KubernetesPodOperator(
         task_id='check_monitoring_stack_health',
-        python_callable=check_monitoring_stack_health,
+        name='monitoring-check-af',
+        namespace='default',
+        image='habtech-monitoring-check:latest',
+        image_pull_policy='Never',
+        env_vars={
+            'PROMETHEUS_URL': 'http://host.docker.internal:9090/-/healthy',
+            'GRAFANA_URL': 'http://host.docker.internal:3000/api/health',
+            'CADVISOR_URL': 'http://host.docker.internal:8082/healthz',
+            'KEYCLOAK_URL': 'http://host.docker.internal:8080/realms/master/.well-known/openid-configuration',
+        },
+        config_file='/opt/airflow/.kube/config',
+        cluster_context='minikube',
+        is_delete_operator_pod=True,
+        get_logs=True,
+        startup_timeout_seconds=300,
         trigger_rule='all_done',
     )
 

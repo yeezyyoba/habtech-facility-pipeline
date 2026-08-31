@@ -1,0 +1,12 @@
+dbt_malaria_profile:
+  target: prod
+  outputs:
+    prod:
+      type: clickhouse
+      schema: analytics
+      host: host.docker.internal
+      port: 8123
+      user: habtech_airflow
+      password: habtechpass123
+      secure: false
+      threads: 4

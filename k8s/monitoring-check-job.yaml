@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: monitoring-check
+spec:
+  template:
+    spec:
+      containers:
+        - name: monitoring-check
+          image: habtech-monitoring-check:latest
+          imagePullPolicy: Never
+          env:
+            - name: PROMETHEUS_URL
+              value: "http://host.docker.internal:9090/-/healthy"
+            - name: GRAFANA_URL
+              value: "http://host.docker.internal:3000/api/health"
+            - name: CADVISOR_URL
+              value: "http://host.docker.internal:8082/healthz"
+            - name: KEYCLOAK_URL
+              value: "http://host.docker.internal:8080/realms/master/.well-known/openid-configuration"
+      restartPolicy: Never
+  backoffLimit: 1
