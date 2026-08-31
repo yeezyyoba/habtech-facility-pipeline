@@ -1,0 +1,4 @@
+FROM apache/superset:latest
+USER root
+RUN uv pip install --python /app/.venv/bin/python3 --no-deps clickhouse-connect clickhouse-driver clickhouse-sqlalchemy asynch leb128 ciso8601 zstd lz4 tzlocal
+USER superset

@@ -51,7 +51,7 @@ resource "docker_container" "clickhouse" {
     external = 9000
   }
 
-  memory = 1024
+  memory = 1536
 }
 
 # --- MINIO ---

@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: superset-refresh
+spec:
+  template:
+    spec:
+      containers:
+        - name: superset-refresh
+          image: habtech-superset-refresh:latest
+          imagePullPolicy: Never
+          env:
+            - name: SUPERSET_URL
+              value: "http://superset:8088"
+            - name: SUPERSET_USER
+              value: "admin"
+            - name: SUPERSET_PASSWORD
+              value: "admin"
+      restartPolicy: Never
+  backoffLimit: 1
