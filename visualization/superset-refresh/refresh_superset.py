@@ -24,7 +24,7 @@ def refresh_superset_datasets():
             "provider": "db",
             "refresh": True,
         },
-        timeout=10,
+        timeout=30,
     )
     login_resp.raise_for_status()
     access_token = login_resp.json().get("access_token")
@@ -34,7 +34,7 @@ def refresh_superset_datasets():
         f"{SUPERSET_URL}/api/v1/dataset/",
         headers=headers,
         params={"q": "(filters:!((col:table_name,opr:ct,value:'')))"},
-        timeout=10,
+        timeout=30,
     )
     datasets_resp.raise_for_status()
     datasets = datasets_resp.json().get("result", [])
@@ -47,7 +47,7 @@ def refresh_superset_datasets():
             refresh_resp = session.put(
                 f"{SUPERSET_URL}/api/v1/dataset/{ds_id}/refresh",
                 headers=headers,
-                timeout=10,
+                timeout=30,
             )
             if refresh_resp.status_code in (200, 201):
                 refreshed.append(ds["table_name"])
