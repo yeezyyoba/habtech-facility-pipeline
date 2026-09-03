@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-scheduler
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-scheduler
+  template:
+    metadata:
+      labels:
+        app: airflow-scheduler
+    spec:
+      containers:
+      - name: airflow-scheduler
+        image: habtech-airflow:latest
+        imagePullPolicy: Never
+        command: ["airflow", "scheduler"]
+        env:
+        - name: AIRFLOW__CORE__EXECUTOR
+          value: "LocalExecutor"
+        - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+          value: "postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow"
+        - name: AIRFLOW__CORE__FERNET_KEY
+          value: ""
+        - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+          value: "true"
+        - name: AIRFLOW__CORE__LOAD_EXAMPLES
+          value: "false"
+        - name: AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK
+          value: "true"
+        volumeMounts:
+        - name: dags
+          mountPath: /opt/airflow/dags
+        - name: logs
+          mountPath: /opt/airflow/logs
+        - name: plugins
+          mountPath: /opt/airflow/plugins
+        - name: kubeconfig
+          mountPath: /opt/airflow/.kube
+      volumes:
+      - name: dags
+        hostPath:
+          path: /mnt/airflow-dags
+          type: DirectoryOrCreate
+      - name: logs
+        hostPath:
+          path: /mnt/airflow-logs
+          type: DirectoryOrCreate
+      - name: plugins
+        hostPath:
+          path: /mnt/airflow-plugins
+          type: DirectoryOrCreate
+      - name: kubeconfig
+        hostPath:
+          path: /mnt/airflow-kubeconfig
+          type: DirectoryOrCreate
