@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: airflow-create-user
+spec:
+  template:
+    spec:
+      containers:
+        - name: airflow-create-user
+          image: habtech-airflow:latest
+          imagePullPolicy: Never
+          command: ["airflow", "users", "create", "--username", "airflow", "--firstname", "Airflow", "--lastname", "Admin", "--role", "Admin", "--email", "airflow@habtech.local", "--password", "airflow"]
+          env:
+            - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              value: "postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow"
+      restartPolicy: Never
+  backoffLimit: 1
